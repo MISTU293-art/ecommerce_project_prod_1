@@ -123,19 +123,38 @@ async function addProduct(req, res) {
     }
 }
 
-async function allproducts(req,res) {
-    try{
-        const products = await ProductModel.find();
-        
-        return res.status(200).json({
-            products
+async function allproducts(req, res) {
+    try {
+        const products = await ProductModel.find()
+            .select("-short_description -description");
+        const totalProducts = await ProductModel.countDocuments({ status: "active" });
+        return res.render('admin/products', {
+            products,
+            totalProducts, 
         })
     }
-    catch(err){
-        console.log("Error:",err);
+    catch (err) {
+        console.log("Error:", err);
 
     }
 }
 
+async function productProfile(req,res) {
+    try{
+        
+        const product = await ProductModel.findById(req.params._id).limit(1)
+        if(!product){
+            return res.redirect('/product/products')
+        }
+        console.log(product)
+        return res.render('admin/product_profile',{
+            product
+        })
+    }
+    catch(err){
+        return res.redirect('/product/products')
+    }
+}
 
-export { addProduct,allproducts };
+
+export { addProduct, allproducts ,productProfile};

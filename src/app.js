@@ -72,6 +72,10 @@ const productData = [
 app.get('/', (req, res) => {
     res.render('index',{products:productData});
 });
+app.use((req, res, next) => {
+  res.locals.currentPath = req.originalUrl;
+  next();
+});
 /** Admin Auth Router */
 import adminAuthRoutes from './routes/admin_auth.routes.js';
 import adminManagemntRoute from './routes/admin_management.routes.js';

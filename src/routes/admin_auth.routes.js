@@ -17,6 +17,7 @@ router.post("/register",isLoggedIn, RegisterAdmin);
 // GET /admin/dashboard
 router.get('/dashboard', isLoggedIn,(req, res) => {
     res.render("admin/dashboard", {
+        admin:req.user,
         error: "",
         success: ""
     })

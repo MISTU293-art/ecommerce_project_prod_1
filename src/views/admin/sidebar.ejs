@@ -1,46 +1,53 @@
 <%
-    // Values passed from dashboard.ejs (all optional)
-    const admin  = locals.User || { name: 'Super Admin' };
-    const active = locals.activePage || '';
+    // Values passed from the route (all optional)
+    const admin = locals.User || { name: 'Super Admin' };
+
+    // Current URL path without query string or trailing slash.
+    // Needs this once in app.js:
+    //   app.use((req, res, next) => { res.locals.currentPath = req.originalUrl; next(); });
+    const currentPath = (locals.currentPath || '').split('?')[0].replace(/\/+$/, '');
+
+    // An explicit activePage from the route still wins over auto-detection
+    let active = locals.activePage || '';
 
     // Single source of truth for the menu
     const menu = [
         {
             title: 'Overview',
             items: [
-                { key: 'dashboard', href: '/admin/dashboard', icon: 'bi-speedometer2',  label: 'Dashboard' },
+                { key: 'dashboard', href: '/admin/dashboard',      icon: 'bi-speedometer2',   label: 'Dashboard' },
                 { key: 'analytics', href: '/superadmin/analytics', icon: 'bi-graph-up-arrow', label: 'Platform Analytics' }
             ]
         },
         {
             title: 'User Management',
             items: [
-                { key: 'admins',    href: '/admin/management/admins',    icon: 'bi-shield-check', label: 'Administrators' },
-                { key: 'sellers',   href: '/superadmin/sellers',   icon: 'bi-shop',         label: 'Sellers' },
-                { key: 'customers', href: '/superadmin/customers', icon: 'bi-people',       label: 'Customers' },
-                { key: 'staff',     href: '/superadmin/staff',     icon: 'bi-person-badge', label: 'Staff & Employees' },
-                { key: 'roles',     href: '/superadmin/roles',     icon: 'bi-person-lock',  label: 'Roles & Permissions' }
+                { key: 'admins',    href: '/admin/management/admins', icon: 'bi-shield-check', label: 'Administrators' },
+                { key: 'sellers',   href: '/superadmin/sellers',      icon: 'bi-shop',         label: 'Sellers' },
+                { key: 'customers', href: '/superadmin/customers',    icon: 'bi-people',       label: 'Customers' },
+                { key: 'staff',     href: '/superadmin/staff',        icon: 'bi-person-badge', label: 'Staff & Employees' },
+                { key: 'roles',     href: '/superadmin/roles',        icon: 'bi-person-lock',  label: 'Roles & Permissions' }
             ]
         },
         {
             title: 'Marketplace',
             items: [
-                { key: 'products',   href: '/superadmin/products',   icon: 'bi-box-seam',              label: 'All Products' },
-                { key: 'categories', href: '/superadmin/categories', icon: 'bi-grid',                  label: 'Categories' },
-                { key: 'brands',     href: '/product/add',     icon: 'bi-box-seam',                  label: 'Add Products' },
-                { key: 'orders',     href: '/superadmin/orders',     icon: 'bi-cart3',                 label: 'All Orders' },
+                { key: 'products',   href: '/product/products',      icon: 'bi-box-seam',               label: 'All Products' },
+                { key: 'categories', href: '/superadmin/categories', icon: 'bi-grid',                   label: 'Categories' },
+                { key: 'addProduct', href: '/product/add',           icon: 'bi-plus-square',            label: 'Add Products' },
+                { key: 'orders',     href: '/superadmin/orders',     icon: 'bi-cart3',                  label: 'All Orders' },
                 { key: 'returns',    href: '/superadmin/returns',    icon: 'bi-arrow-counterclockwise', label: 'Returns & Refunds' },
-                { key: 'reviews',    href: '/superadmin/reviews',    icon: 'bi-star',                  label: 'Reviews & Moderation' }
+                { key: 'reviews',    href: '/superadmin/reviews',    icon: 'bi-star',                   label: 'Reviews & Moderation' }
             ]
         },
         {
             title: 'Finance & Payments',
             items: [
-                { key: 'payments',     href: '/superadmin/payments',     icon: 'bi-wallet2',         label: 'Payments' },
-                { key: 'commissions',  href: '/superadmin/commissions',  icon: 'bi-percent',         label: 'Seller Commissions' },
-                { key: 'payouts',      href: '/superadmin/payouts',      icon: 'bi-bank',            label: 'Seller Payouts' },
+                { key: 'payments',     href: '/superadmin/payments',     icon: 'bi-wallet2',          label: 'Payments' },
+                { key: 'commissions',  href: '/superadmin/commissions',  icon: 'bi-percent',          label: 'Seller Commissions' },
+                { key: 'payouts',      href: '/superadmin/payouts',      icon: 'bi-bank',             label: 'Seller Payouts' },
                 { key: 'transactions', href: '/superadmin/transactions', icon: 'bi-arrow-left-right', label: 'Transactions' },
-                { key: 'refunds',      href: '/superadmin/refunds',      icon: 'bi-cash-stack',      label: 'Refund Management' }
+                { key: 'refunds',      href: '/superadmin/refunds',      icon: 'bi-cash-stack',       label: 'Refund Management' }
             ]
         },
         {
@@ -69,40 +76,141 @@
             ]
         }
     ];
+
+    // Auto-detect the active item from the URL (longest matching href wins,
+    // so /superadmin/sellers/12 keeps "Sellers" highlighted)
+    if (!active && currentPath) {
+        let bestLen = 0;
+        menu.forEach(function (section) {
+            section.items.forEach(function (item) {
+                const matches = currentPath === item.href || currentPath.startsWith(item.href + '/');
+                if (matches && item.href.length > bestLen) {
+                    bestLen = item.href.length;
+                    active = item.key;
+                }
+            });
+        });
+    }
 %>
+
+<style>
+    /* ---------- Desktop (lg and up): unchanged sticky sidebar ---------- */
+    #sidebar { width: 270px; }
+    #mobileBar, #sidebarBackdrop, #sidebarClose { display: none; }
+
+    /* ---------- Mobile / tablet (below lg): off-canvas drawer ---------- */
+    @media (max-width: 991.98px) {
+        /* Top bar with the toggle button */
+        #mobileBar {
+            display: flex;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            z-index: 1030;
+        }
+        /* Keeps page content from hiding under the fixed top bar */
+        body { padding-top: 56px; }
+
+        /* Sidebar becomes a slide-in drawer */
+        #sidebar {
+            position: fixed !important;
+            top: 0; left: 0;
+            height: 100vh !important;
+            height: 100dvh !important;
+            width: 280px;
+            max-width: 85vw;
+            z-index: 1045;
+            transform: translateX(-100%);
+            visibility: hidden;
+            transition: transform .25s ease, visibility 0s linear .25s;
+        }
+        #sidebar.show {
+            transform: translateX(0);
+            visibility: visible;
+            box-shadow: 0 0 2rem rgba(0, 0, 0, .25);
+            transition: transform .25s ease, visibility 0s;
+        }
+
+        /* Dark overlay behind the drawer */
+        #sidebarBackdrop {
+            display: block;
+            position: fixed;
+            inset: 0;
+            z-index: 1040;
+            background: rgba(0, 0, 0, .45);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .25s ease, visibility 0s linear .25s;
+        }
+        #sidebarBackdrop.show {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity .25s ease, visibility 0s;
+        }
+
+        #sidebarClose { display: inline-flex; }
+        body.sidebar-open { overflow: hidden; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        #sidebar, #sidebarBackdrop { transition: none !important; }
+    }
+</style>
+
+<!-- MOBILE TOP BAR (visible below lg only) -->
+<header id="mobileBar" class="align-items-center gap-3 px-3 bg-white border-bottom">
+    <button type="button" id="sidebarToggle"
+            class="btn btn-outline-secondary border-0 fs-4 p-1 lh-1"
+            aria-label="Open navigation menu"
+            aria-controls="sidebar"
+            aria-expanded="false">
+        <i class="bi bi-list" aria-hidden="true"></i>
+    </button>
+    <a href="/admin/dashboard" class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+        <i class="bi bi-shield-lock-fill fs-4 text-primary" aria-hidden="true"></i>
+        <span class="fs-5 fw-bold">MyZone</span>
+    </a>
+</header>
+
+<!-- Overlay -->
+<div id="sidebarBackdrop" aria-hidden="true"></div>
 
 <!-- SUPER ADMIN SIDEBAR -->
 <aside id="sidebar"
-       class="d-flex flex-column flex-shrink-0 bg-white border-end position-sticky top-0 vh-100 align-self-start"
-       style="width:270px;">
+       class="d-flex flex-column flex-shrink-0 bg-white border-end position-sticky top-0 vh-100 align-self-start">
 
     <!-- Brand -->
     <div class="p-3 border-bottom">
-        <a href="/superadmin/dashboard"
-           class="d-flex align-items-center gap-2 text-decoration-none text-dark">
-            <i class="bi bi-shield-lock-fill fs-3 text-primary" aria-hidden="true"></i>
-            <span class="fs-5 fw-bold">MyZone</span>
-        </a>
+        <div class="d-flex align-items-center justify-content-between">
+            <a href="/admin/dashboard"
+               class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+                <i class="bi bi-shield-lock-fill fs-3 text-primary" aria-hidden="true"></i>
+                <span class="fs-5 fw-bold">MyZone</span>
+            </a>
+            <button type="button" id="sidebarClose"
+                    class="btn btn-outline-secondary border-0 p-1 lh-1 fs-5"
+                    aria-label="Close navigation menu">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </div>
         <small class="text-secondary">Super Admin Console</small>
     </div>
-
-
 
     <!-- Navigation -->
     <nav class="flex-grow-1 overflow-auto p-3" aria-label="Super admin navigation">
 
         <% menu.forEach(function (section, i) { %>
 
-            <small class="d-block text-uppercase text-secondary fw-bold"><%= section.title %></small>
+            <small class="d-block text-uppercase text-secondary fw-bold mb-2"><%= section.title %></small>
 
-            <ul class="nav nav-pills flex-column gap-1 mt-2 <%= i < menu.length - 1 ? 'mb-4' : '' %>">
+            <ul class="nav nav-pills flex-column gap-1 <%= i < menu.length - 1 ? 'mb-4' : '' %>">
                 <% section.items.forEach(function (item) { %>
                     <% const isActive = item.key === active; %>
                     <li class="nav-item">
                         <a href="<%= item.href %>"
-                           class="nav-link <%= isActive ? 'active' : 'text-dark' %>"
+                           class="nav-link rounded-2 <%= isActive ? 'active bg-primary text-white shadow-sm' : 'text-dark' %>"
                            <%- isActive ? 'aria-current="page"' : '' %>>
-                            <i class="bi <%= item.icon %> me-2" aria-hidden="true"></i><%= item.label %>
+                            <i class="bi <%= item.icon %> me-2 <%= isActive ? 'text-white' : 'text-secondary' %>" aria-hidden="true"></i><%= item.label %>
                         </a>
                     </li>
                 <% }) %>
@@ -120,3 +228,83 @@
     </div>
 
 </aside>
+
+<script>
+(function () {
+    var sidebar  = document.getElementById('sidebar');
+    var backdrop = document.getElementById('sidebarBackdrop');
+    var toggle   = document.getElementById('sidebarToggle');
+    var closeBtn = document.getElementById('sidebarClose');
+    var nav      = sidebar.querySelector('nav');
+    if (!sidebar || !backdrop || !toggle) return;
+
+    /* ----- Drawer open / close (mobile) ----- */
+    function setOpen(open) {
+        sidebar.classList.toggle('show', open);
+        backdrop.classList.toggle('show', open);
+        document.body.classList.toggle('sidebar-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+        if (open && closeBtn) { closeBtn.focus(); } else if (!open) { toggle.focus({ preventScroll: true }); }
+    }
+
+    toggle.addEventListener('click', function () {
+        setOpen(!sidebar.classList.contains('show'));
+    });
+    if (closeBtn) closeBtn.addEventListener('click', function () { setOpen(false); });
+    backdrop.addEventListener('click', function () { setOpen(false); });
+
+    // Close when a menu link is tapped
+    sidebar.querySelectorAll('a.nav-link').forEach(function (a) {
+        a.addEventListener('click', function () {
+            if (sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                backdrop.classList.remove('show');
+                document.body.classList.remove('sidebar-open');
+            }
+        });
+    });
+
+    // Esc closes the drawer
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && sidebar.classList.contains('show')) setOpen(false);
+    });
+
+    // Reset state when the screen grows to desktop size
+    window.matchMedia('(min-width: 992px)').addEventListener('change', function (e) {
+        if (e.matches) {
+            sidebar.classList.remove('show');
+            backdrop.classList.remove('show');
+            document.body.classList.remove('sidebar-open');
+            toggle.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    /* ----- Fallback: highlight current page if the server didn't ----- */
+    if (!nav || nav.querySelector('.nav-link.active')) return;
+
+    var path = location.pathname.replace(/\/+$/, '');
+    var best = null, bestLen = 0;
+
+    nav.querySelectorAll('a.nav-link').forEach(function (a) {
+        var href = (a.getAttribute('href') || '').replace(/\/+$/, '');
+        if ((path === href || path.indexOf(href + '/') === 0) && href.length > bestLen) {
+            best = a;
+            bestLen = href.length;
+        }
+    });
+
+    if (best) {
+        best.classList.remove('text-dark');
+        best.classList.add('active', 'bg-primary', 'text-white', 'shadow-sm');
+        best.setAttribute('aria-current', 'page');
+        var icon = best.querySelector('i');
+        if (icon) {
+            icon.classList.remove('text-secondary');
+            icon.classList.add('text-white');
+        }
+        // Scroll the highlighted item into view inside the menu
+        best.scrollIntoView({ block: 'nearest' });
+    }
+})();
+</script>

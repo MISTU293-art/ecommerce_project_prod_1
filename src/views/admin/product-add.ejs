@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <style>
+        /* lets the main area shrink properly next to the sidebar */
+        .main-content { min-width: 0; }
+        #mainPreview img { max-height: 120px; width: auto; }
+    </style>
 </head>
 
 <body class="bg-light">
@@ -17,251 +22,280 @@
         <!-- Sidebar -->
         <%- include('./sidebar.ejs') %>
 
-            <!-- Main Content -->
-            <main class="main-content flex-grow-1 p-3 p-md-4">
+        <!-- Main Content -->
+        <main class="main-content flex-grow-1 p-3 p-md-4">
 
-                <!-- Header -->
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-1">Products Add</h3>
-                        <p class="text-secondary mb-0">
-                            Add All Products
-                        </p>
-                    </div>
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">Add Product</h3>
+                    <p class="text-secondary mb-0">Add all product details below</p>
                 </div>
+            </div>
 
-                <!-- product add page -->
-                <div class="container">
+            <div class="container-fluid px-0">
 
-                    <!-- enctype is required for image upload -->
-                    <form action="/product/add" method="post" enctype="multipart/form-data">
-   <% if (error && error !== "") { %>
-    <div class="alert alert-danger">
-        <h2 class="fs-5 text-center">
-            <i class="bi bi-exclamation-triangle"></i>
-            <%= error %>
-        </h2>
-    </div>
-<% } else if (success && success !== "") { %>
-    <div class="alert alert-success">
-        <h2 class="fs-5 text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
-                <path
-                    d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
-            </svg>
-            <%= success %>
-        </h2>
-    </div>
-<% } %>
-                <!-- 1. Basic details -->
-                <fieldset class="mb-4">
-                    <legend>Product Basic Details</legend>
-
-                    <div class="form-group mb-3">
-                        <label for="name">Name</label>
-                        <input type="text" name="name" id="name" required class="form-control">
+                <!-- Alerts (safe if error/success are not passed from the route) -->
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <div><%= error %></div>
                     </div>
+                <% } else if (typeof success !== 'undefined' && success) { %>
+                    <div class="alert alert-success d-flex align-items-center gap-2" role="alert">
+                        <i class="bi bi-check-lg"></i>
+                        <div><%= success %></div>
+                    </div>
+                <% } %>
 
-                    <div class="row">
-                        <div class="form-group col-md-6 mb-3">
-                            <label for="brand">Brand</label>
-                            <input type="text" name="brand" id="brand" class="form-control">
+                <!-- enctype is required for image upload -->
+                <form action="/product/add" method="post" enctype="multipart/form-data" id="productForm">
+
+                    <!-- 1. Basic details -->
+                    <fieldset class="card card-body mb-4">
+                        <legend class="fs-5 fw-semibold">Product Basic Details</legend>
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" name="name" id="name" required class="form-control">
                         </div>
-                        <div class="form-group col-md-6 mb-3">
-                            <label for="sku">SKU / Product Code</label>
-                            <input type="text" name="sku" id="sku" class="form-control">
-                        </div>
-                    </div>
 
-                    <div class="form-group mb-3">
-                        <label for="category">Category</label>
-                        <select name="category" id="category" class="form-control" required>
-                            <option value="electronic">Electronics</option>
-                            <option value="household">House Hold</option>
-                            <option value="kitchen">Kitchen</option>
-                            <option value="kids">Kids</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="short_description">Short Description</label>
-                        <input type="text" name="short_description" id="short_description" maxlength="160"
-                            class="form-control">
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="description">Full Description</label>
-                        <textarea name="description" id="description" rows="4" class="form-control"></textarea>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="tags">Tags (comma separated)</label>
-                        <input type="text" name="tags" id="tags" class="form-control"
-                            placeholder="e.g. mixer, grinder, 750w">
-                    </div>
-                </fieldset>
-
-                <!-- 2. Price & stock -->
-                <fieldset class="mb-4">
-                    <legend>Price &amp; Stock</legend>
-                    <div class="row">
-                        <div class="form-group col-md-4 mb-3">
-                            <label for="mrp">MRP</label>
-                            <input type="number" min="0" step="0.01" name="mrp" id="mrp" class="form-control">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="brand" class="form-label">Brand</label>
+                                <input type="text" name="brand" id="brand" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sku" class="form-label">SKU / Product Code</label>
+                                <input type="text" name="sku" id="sku" class="form-control">
+                            </div>
                         </div>
-                        <div class="form-group col-md-4 mb-3">
-                            <label for="price">Selling Price</label>
-                            <input type="number" min="0" step="0.01" name="price" id="price" required
-                                class="form-control">
-                        </div>
-                        <div class="form-group col-md-4 mb-3">
-                            <label for="discount">Discount (%)</label>
-                            <input type="number" id="discount" class="form-control" readonly>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-md-6 mb-3">
-                            <label for="stock">Stock Quantity</label>
-                            <input type="number" min="0" name="stock" id="stock" class="form-control">
-                        </div>
-                        <div class="form-group col-md-6 mb-3">
-                            <label for="unit">Unit</label>
-                            <select name="unit" id="unit" class="form-control">
-                                <option value="piece">Piece</option>
-                                <option value="kg">Kg</option>
-                                <option value="litre">Litre</option>
-                                <option value="pack">Pack</option>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select name="category" id="category" class="form-select" required>
+                                <option value="" selected disabled>Select category</option>
+                                <option value="electronic">Electronics</option>
+                                <option value="household">House Hold</option>
+                                <option value="kitchen">Kitchen</option>
+                                <option value="kids">Kids</option>
                             </select>
                         </div>
-                    </div>
-                </fieldset>
 
-                <!-- 3. Images -->
-                <fieldset class="mb-4">
-                    <legend>Product Images</legend>
-                    <div class="form-group mb-3">
-                        <label for="main_image">Main Image</label>
-                        <input type="file" name="main_image" id="main_image" accept="image/*" class="form-control"
-                            required>
-                        <div id="mainPreview" class="mt-2"></div>
-                    </div>
-
-                </fieldset>
-
-                <!-- 4. Extra details -->
-                <fieldset class="mb-4">
-                    <legend>Product Extra Details</legend>
-                    <div class="form-group mb-3">
-                        <label for="seller_name">Seller Name</label>
-                        <input type="text" name="seller_name" id="seller_name" class="form-control">
-                    </div>
-                    <div class="form-group mb-3">
-                        <label for="gst_no">GST (Optional)</label>
-                        <input type="text" name="gst_no" id="gst_no" class="form-control">
-                    </div>
-                    <div class="row">
-                        <div class="form-group col-md-6 mb-3">
-                            <label for="weight">Weight (kg)</label>
-                            <input type="number" min="0" step="0.01" name="weight" id="weight" class="form-control">
-                        </div>
-                        <div class="form-group col-md-6 mb-3">
-                            <label for="warranty_months">Warranty (months)</label>
-                            <input type="number" min="0" name="warranty_months" id="warranty_months"
+                        <div class="mb-3">
+                            <label for="short_description" class="form-label">Short Description</label>
+                            <input type="text" name="short_description" id="short_description" maxlength="160"
                                 class="form-control">
+                            <div class="form-text"><span id="shortCount">0</span>/160 characters</div>
                         </div>
-                    </div>
-                </fieldset>
 
-                <!-- 5. Refund -->
-                <fieldset class="mb-4">
-                    <legend>Refund &amp; Return</legend>
-                    <div class="form-group mb-3">
-                        <label for="refund_exists">Refund Exists</label>
-                        <select name="refund_exists" id="refund_exists" class="form-control">
-                            <option value="yes">Yes</option>
-                            <option value="no">No</option>
-                        </select>
-                    </div>
-                    <div id="refundExtra">
-                        <div class="form-group mb-3">
-                            <label for="refund_days">Refund Window (days)</label>
-                            <input type="number" min="1" name="refund_days" id="refund_days" value="7"
-                                class="form-control">
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Full Description</label>
+                            <textarea name="description" id="description" rows="4" class="form-control"></textarea>
                         </div>
-                        <div class="form-group mb-3">
-                            <label for="refund_policy">Refund Policy Note</label>
-                            <textarea name="refund_policy" id="refund_policy" rows="2" class="form-control"></textarea>
+
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags (comma separated)</label>
+                            <input type="text" name="tags" id="tags" class="form-control"
+                                placeholder="e.g. mixer, grinder, 750w">
                         </div>
-                    </div>
-                </fieldset>
+                    </fieldset>
 
-                <!-- 6. Status -->
-                <fieldset class="mb-4">
-                    <legend>Listing Status</legend>
-                    <div class="form-group mb-3">
-                        <label for="status">Status</label>
-                        <select name="status" id="status" class="form-control">
-                            <option value="active">Active (visible on site)</option>
-                            <option value="draft">Draft (hidden)</option>
-                        </select>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" name="is_featured" id="is_featured">
-                        <label class="form-check-label" for="is_featured">Featured product</label>
-                    </div>
-                </fieldset>
+                    <!-- 2. Price & stock -->
+                    <fieldset class="card card-body mb-4">
+                        <legend class="fs-5 fw-semibold">Price &amp; Stock</legend>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="mrp" class="form-label">MRP</label>
+                                <input type="number" min="0" step="0.01" name="mrp" id="mrp" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="price" class="form-label">Selling Price</label>
+                                <input type="number" min="0" step="0.01" name="price" id="price" required
+                                    class="form-control">
+                                <div class="invalid-feedback">Selling price cannot be higher than MRP.</div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="discount" class="form-label">Discount (%)</label>
+                                <!-- display only, intentionally has no name so it is not submitted -->
+                                <input type="number" id="discount" class="form-control" readonly tabindex="-1">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="stock" class="form-label">Stock Quantity</label>
+                                <input type="number" min="0" name="stock" id="stock" class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="unit" class="form-label">Unit</label>
+                                <select name="unit" id="unit" class="form-select">
+                                    <option value="piece">Piece</option>
+                                    <option value="kg">Kg</option>
+                                    <option value="litre">Litre</option>
+                                    <option value="pack">Pack</option>
+                                </select>
+                            </div>
+                        </div>
+                    </fieldset>
 
-                <div class="d-flex gap-2 mb-5">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-plus-circle"></i> Add Product
-                    </button>
-                    <button type="reset" class="btn btn-secondary">Reset</button>
-                </div>
+                    <!-- 3. Images -->
+                    <fieldset class="card card-body mb-4">
+                        <legend class="fs-5 fw-semibold">Product Images</legend>
+                        <div class="mb-3">
+                            <label for="main_image" class="form-label">Main Image</label>
+                            <input type="file" name="main_image" id="main_image" accept="image/*"
+                                class="form-control" required>
+                            <div id="mainPreview" class="mt-2"></div>
+                        </div>
+                    </fieldset>
+
+                    <!-- 4. Extra details -->
+                    <fieldset class="card card-body mb-4">
+                        <legend class="fs-5 fw-semibold">Product Extra Details</legend>
+                        <div class="mb-3">
+                            <label for="seller_name" class="form-label">Seller Name</label>
+                            <input type="text" name="seller_name" id="seller_name" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="gst_no" class="form-label">GST (Optional)</label>
+                            <input type="text" name="gst_no" id="gst_no" class="form-control">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="weight" class="form-label">Weight (kg)</label>
+                                <input type="number" min="0" step="0.01" name="weight" id="weight"
+                                    class="form-control">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="warranty_months" class="form-label">Warranty (months)</label>
+                                <input type="number" min="0" name="warranty_months" id="warranty_months"
+                                    class="form-control">
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- 5. Refund -->
+                    <fieldset class="card card-body mb-4">
+                        <legend class="fs-5 fw-semibold">Refund &amp; Return</legend>
+                        <div class="mb-3">
+                            <label for="refund_exists" class="form-label">Refund Exists</label>
+                            <select name="refund_exists" id="refund_exists" class="form-select">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div id="refundExtra">
+                            <div class="mb-3">
+                                <label for="refund_days" class="form-label">Refund Window (days)</label>
+                                <input type="number" min="1" name="refund_days" id="refund_days" value="7"
+                                    class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label for="refund_policy" class="form-label">Refund Policy Note</label>
+                                <textarea name="refund_policy" id="refund_policy" rows="2"
+                                    class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- 6. Status -->
+                    <fieldset class="card card-body mb-4">
+                        <legend class="fs-5 fw-semibold">Listing Status</legend>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select name="status" id="status" class="form-select">
+                                <option value="active">Active (visible on site)</option>
+                                <option value="draft">Draft (hidden)</option>
+                            </select>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_featured" id="is_featured">
+                            <label class="form-check-label" for="is_featured">Featured product</label>
+                        </div>
+                    </fieldset>
+
+                    <div class="d-flex gap-2 mb-5">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Product
+                        </button>
+                        <button type="reset" class="btn btn-secondary">Reset</button>
+                    </div>
                 </form>
+            </div>
+        </main>
     </div>
-    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
         crossorigin="anonymous"></script>
 
     <script>
-        // Auto discount
+        const form = document.getElementById('productForm');
+
+        // Short description counter
+        const shortDesc = document.getElementById('short_description');
+        const shortCount = document.getElementById('shortCount');
+        function updateShortCount() { shortCount.textContent = shortDesc.value.length; }
+        shortDesc.addEventListener('input', updateShortCount);
+
+        // Auto discount + price validation
         const mrp = document.getElementById('mrp');
         const price = document.getElementById('price');
         const discount = document.getElementById('discount');
         function calcDiscount() {
-            const m = parseFloat(mrp.value), p = parseFloat(price.value);
+            const m = parseFloat(mrp.value);
+            const p = parseFloat(price.value);
+            const bad = m > 0 && p > m;
+            price.classList.toggle('is-invalid', bad);
+            price.setCustomValidity(bad ? 'Selling price cannot be higher than MRP' : '');
             discount.value = (m > 0 && p >= 0 && p <= m) ? Math.round((1 - p / m) * 100) : '';
         }
         mrp.addEventListener('input', calcDiscount);
         price.addEventListener('input', calcDiscount);
 
-        // Show refund fields only when refund = yes
+        // Show refund fields only when refund = yes (disabled fields are not submitted)
         const refund = document.getElementById('refund_exists');
         const refundExtra = document.getElementById('refundExtra');
         function toggleRefund() {
-            refundExtra.style.display = refund.value === 'yes' ? 'block' : 'none';
+            const on = refund.value === 'yes';
+            refundExtra.style.display = on ? 'block' : 'none';
+            refundExtra.querySelectorAll('input, textarea').forEach(el => el.disabled = !on);
         }
         refund.addEventListener('change', toggleRefund);
-        toggleRefund();
 
-        // Image previews
-        function preview(input, box, size) {
-            box.innerHTML = '';
-            Array.from(input.files).slice(0, 5).forEach(file => {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.className = 'img-thumbnail';
-                img.style.height = size + 'px';
-                box.appendChild(img);
-            });
-        }
+        // Image preview
         const mainImage = document.getElementById('main_image');
+        const mainPreview = document.getElementById('mainPreview');
+        function clearPreview() {
+            mainPreview.querySelectorAll('img').forEach(img => URL.revokeObjectURL(img.src));
+            mainPreview.innerHTML = '';
+        }
+        function showPreview() {
+            clearPreview();
+            const file = mainImage.files[0];
+            if (!file) return;
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = 'Main image preview';
+            img.className = 'img-thumbnail';
+            mainPreview.appendChild(img);
+        }
+        mainImage.addEventListener('change', showPreview);
 
-        mainImage.addEventListener('change', () => preview(mainImage, document.getElementById('mainPreview'), 120));
+        // Reset button: also reset the derived UI
+        form.addEventListener('reset', () => {
+            setTimeout(() => {
+                clearPreview();
+                calcDiscount();
+                toggleRefund();
+                updateShortCount();
+            }, 0);
+        });
 
+        // Initial state
+        updateShortCount();
+        calcDiscount();
+        toggleRefund();
     </script>
 </body>
 
