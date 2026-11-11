@@ -24,7 +24,7 @@ const AdminSchema = new mongoose.Schema(
     },
   },
   {
-    timeseries: true,
+    timestamps: true,
   },
 );
 

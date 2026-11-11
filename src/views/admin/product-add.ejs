@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Product Add</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+
+<body class="bg-light">
+    <!-- Main Layout -->
+    <div class="d-flex min-vh-100">
+
+        <!-- Sidebar -->
+        <%- include('./sidebar.ejs') %>
+
+            <!-- Main Content -->
+            <main class="main-content flex-grow-1 p-3 p-md-4">
+
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Products Add</h3>
+                        <p class="text-secondary mb-0">
+                            Add All Products
+                        </p>
+                    </div>
+                </div>
+
+                <!-- product add page -->
+                <div class="container">
+
+                    <!-- enctype is required for image upload -->
+                    <form action="/product/add" method="post" enctype="multipart/form-data">
+   <% if (error && error !== "") { %>
+    <div class="alert alert-danger">
+        <h2 class="fs-5 text-center">
+            <i class="bi bi-exclamation-triangle"></i>
+            <%= error %>
+        </h2>
+    </div>
+<% } else if (success && success !== "") { %>
+    <div class="alert alert-success">
+        <h2 class="fs-5 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                fill="currentColor" class="bi bi-check-lg" viewBox="0 0 16 16">
+                <path
+                    d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425z" />
+            </svg>
+            <%= success %>
+        </h2>
+    </div>
+<% } %>
+                <!-- 1. Basic details -->
+                <fieldset class="mb-4">
+                    <legend>Product Basic Details</legend>
+
+                    <div class="form-group mb-3">
+                        <label for="name">Name</label>
+                        <input type="text" name="name" id="name" required class="form-control">
+                    </div>
+
+                    <div class="row">
+                        <div class="form-group col-md-6 mb-3">
+                            <label for="brand">Brand</label>
+                            <input type="text" name="brand" id="brand" class="form-control">
+                        </div>
+                        <div class="form-group col-md-6 mb-3">
+                            <label for="sku">SKU / Product Code</label>
+                            <input type="text" name="sku" id="sku" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="category">Category</label>
+                        <select name="category" id="category" class="form-control" required>
+                            <option value="electronic">Electronics</option>
+                            <option value="household">House Hold</option>
+                            <option value="kitchen">Kitchen</option>
+                            <option value="kids">Kids</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="short_description">Short Description</label>
+                        <input type="text" name="short_description" id="short_description" maxlength="160"
+                            class="form-control">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="description">Full Description</label>
+                        <textarea name="description" id="description" rows="4" class="form-control"></textarea>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="tags">Tags (comma separated)</label>
+                        <input type="text" name="tags" id="tags" class="form-control"
+                            placeholder="e.g. mixer, grinder, 750w">
+                    </div>
+                </fieldset>
+
+                <!-- 2. Price & stock -->
+                <fieldset class="mb-4">
+                    <legend>Price &amp; Stock</legend>
+                    <div class="row">
+                        <div class="form-group col-md-4 mb-3">
+                            <label for="mrp">MRP</label>
+                            <input type="number" min="0" step="0.01" name="mrp" id="mrp" class="form-control">
+                        </div>
+                        <div class="form-group col-md-4 mb-3">
+                            <label for="price">Selling Price</label>
+                            <input type="number" min="0" step="0.01" name="price" id="price" required
+                                class="form-control">
+                        </div>
+                        <div class="form-group col-md-4 mb-3">
+                            <label for="discount">Discount (%)</label>
+                            <input type="number" id="discount" class="form-control" readonly>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6 mb-3">
+                            <label for="stock">Stock Quantity</label>
+                            <input type="number" min="0" name="stock" id="stock" class="form-control">
+                        </div>
+                        <div class="form-group col-md-6 mb-3">
+                            <label for="unit">Unit</label>
+                            <select name="unit" id="unit" class="form-control">
+                                <option value="piece">Piece</option>
+                                <option value="kg">Kg</option>
+                                <option value="litre">Litre</option>
+                                <option value="pack">Pack</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 3. Images -->
+                <fieldset class="mb-4">
+                    <legend>Product Images</legend>
+                    <div class="form-group mb-3">
+                        <label for="main_image">Main Image</label>
+                        <input type="file" name="main_image" id="main_image" accept="image/*" class="form-control"
+                            required>
+                        <div id="mainPreview" class="mt-2"></div>
+                    </div>
+
+                </fieldset>
+
+                <!-- 4. Extra details -->
+                <fieldset class="mb-4">
+                    <legend>Product Extra Details</legend>
+                    <div class="form-group mb-3">
+                        <label for="seller_name">Seller Name</label>
+                        <input type="text" name="seller_name" id="seller_name" class="form-control">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="gst_no">GST (Optional)</label>
+                        <input type="text" name="gst_no" id="gst_no" class="form-control">
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-6 mb-3">
+                            <label for="weight">Weight (kg)</label>
+                            <input type="number" min="0" step="0.01" name="weight" id="weight" class="form-control">
+                        </div>
+                        <div class="form-group col-md-6 mb-3">
+                            <label for="warranty_months">Warranty (months)</label>
+                            <input type="number" min="0" name="warranty_months" id="warranty_months"
+                                class="form-control">
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 5. Refund -->
+                <fieldset class="mb-4">
+                    <legend>Refund &amp; Return</legend>
+                    <div class="form-group mb-3">
+                        <label for="refund_exists">Refund Exists</label>
+                        <select name="refund_exists" id="refund_exists" class="form-control">
+                            <option value="yes">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+                    </div>
+                    <div id="refundExtra">
+                        <div class="form-group mb-3">
+                            <label for="refund_days">Refund Window (days)</label>
+                            <input type="number" min="1" name="refund_days" id="refund_days" value="7"
+                                class="form-control">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="refund_policy">Refund Policy Note</label>
+                            <textarea name="refund_policy" id="refund_policy" rows="2" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <!-- 6. Status -->
+                <fieldset class="mb-4">
+                    <legend>Listing Status</legend>
+                    <div class="form-group mb-3">
+                        <label for="status">Status</label>
+                        <select name="status" id="status" class="form-control">
+                            <option value="active">Active (visible on site)</option>
+                            <option value="draft">Draft (hidden)</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="is_featured" id="is_featured">
+                        <label class="form-check-label" for="is_featured">Featured product</label>
+                    </div>
+                </fieldset>
+
+                <div class="d-flex gap-2 mb-5">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> Add Product
+                    </button>
+                    <button type="reset" class="btn btn-secondary">Reset</button>
+                </div>
+                </form>
+    </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"></script>
+
+    <script>
+        // Auto discount
+        const mrp = document.getElementById('mrp');
+        const price = document.getElementById('price');
+        const discount = document.getElementById('discount');
+        function calcDiscount() {
+            const m = parseFloat(mrp.value), p = parseFloat(price.value);
+            discount.value = (m > 0 && p >= 0 && p <= m) ? Math.round((1 - p / m) * 100) : '';
+        }
+        mrp.addEventListener('input', calcDiscount);
+        price.addEventListener('input', calcDiscount);
+
+        // Show refund fields only when refund = yes
+        const refund = document.getElementById('refund_exists');
+        const refundExtra = document.getElementById('refundExtra');
+        function toggleRefund() {
+            refundExtra.style.display = refund.value === 'yes' ? 'block' : 'none';
+        }
+        refund.addEventListener('change', toggleRefund);
+        toggleRefund();
+
+        // Image previews
+        function preview(input, box, size) {
+            box.innerHTML = '';
+            Array.from(input.files).slice(0, 5).forEach(file => {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'img-thumbnail';
+                img.style.height = size + 'px';
+                box.appendChild(img);
+            });
+        }
+        const mainImage = document.getElementById('main_image');
+
+        mainImage.addEventListener('change', () => preview(mainImage, document.getElementById('mainPreview'), 120));
+
+    </script>
+</body>
+
+</html>

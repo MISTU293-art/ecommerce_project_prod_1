@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>MyZone | Super Admin Dashboard</title>
+
+    <!-- Bootstrap 5.2.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .main-content {
+            min-width: 0;
+            /* lets the content shrink instead of overflowing */
+        }
+
+        .profile-avatar {
+            width: 42px;
+            height: 42px;
+            object-fit: cover;
+        }
+
+        /* ---------- Sidebar ---------- */
+        #sidebar {
+            transition: margin-left .25s ease, transform .25s ease;
+        }
+
+        #sidebarBackdrop {
+            display: none;
+        }
+
+        /* Desktop: collapse by sliding out of the layout */
+        @media (min-width: 992px) {
+            #sidebar.sidebar-collapsed {
+                margin-left: -270px;
+            }
+        }
+
+        /* Mobile / tablet: off-canvas panel, hidden by default */
+        @media (max-width: 991.98px) {
+            #sidebar {
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                height: 100vh !important;
+                height: 100dvh !important;
+                max-width: 85vw;
+                z-index: 1045;
+                transform: translateX(-100%);
+            }
+
+            #sidebar.sidebar-open {
+                transform: translateX(0);
+                box-shadow: 0 0 2rem rgba(0, 0, 0, .25);
+            }
+
+            #sidebarBackdrop.show {
+                display: block;
+                position: fixed;
+                inset: 0;
+                z-index: 1040;
+                background: rgba(0, 0, 0, .4);
+            }
+
+            body.sidebar-lock {
+                overflow: hidden;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <% const admin=locals.User || { name: 'Super Admin' }; %>
+
+        <div id="sidebarBackdrop"></div>
+
+        <div class="d-flex min-vh-100">
+
+            <!-- Sidebar -->
+            <%- include('./sidebar.ejs', { User: admin, activePage: locals.activePage || 'dashboard' }) %>
+
+                <!-- Main Content -->
+                <main class="main-content flex-grow-1">
+
+                    <!-- Top Navbar -->
+                    <nav class="navbar bg-white border-bottom px-3 px-md-4 py-3 sticky-top flex-nowrap">
+
+                        <div class="d-flex align-items-center gap-3 min-w-0">
+
+                            <button class="btn btn-light border flex-shrink-0" type="button" id="sidebarToggle"
+                                aria-label="Toggle sidebar" aria-controls="sidebar" aria-expanded="false">
+                                <i class="bi bi-list fs-5" aria-hidden="true"></i>
+                            </button>
+
+                            <div class="text-truncate">
+                                <h5 class="mb-0 fw-bold">Dashboard</h5>
+                                <small class="text-secondary d-none d-sm-block">
+                                    Welcome to MyZone Super Admin
+                                </small>
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex align-items-center gap-2 gap-md-3 flex-shrink-0">
+
+                            <!-- Notifications -->
+                            <a href="/superadmin/notifications" class="btn btn-light position-relative"
+                                aria-label="Notifications">
+                                <i class="bi bi-bell fs-5" aria-hidden="true"></i>
+                            </a>
+
+                            <!-- Profile -->
+                            <div class="d-flex align-items-center gap-2">
+
+                                <i class="bi bi-person-circle fs-2 lh-1 text-secondary" aria-hidden="true"></i>
+
+                                <div class="d-none d-md-block lh-sm">
+
+                                    <strong class="d-block">
+                                        <%= admin.name %>
+                                    </strong>
+
+                                    <small class="text-secondary">
+                                        Super Administrator
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </nav>
+
+                    <!-- Page Content -->
+                    <div class="container-fluid p-3 p-md-4">
+
+                        <!-- Welcome -->
+                        <div class="mb-4">
+                            <h4 class="fw-bold fs-5 fs-md-4">Welcome back, <%= admin.name %>!</h4>
+
+                            <p class="text-secondary mb-0">
+                                Here's what's happening with your marketplace today.
+                            </p>
+                        </div>
+
+
+                        <!-- Dashboard Cards -->
+                        <div class="row g-3">
+
+                            <div class="col-6 col-xl-3">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <i class="bi bi-people fs-3 text-primary" aria-hidden="true"></i>
+                                        <p class="text-secondary mb-1 mt-3">Total Users</p>
+                                        <h3 class="fw-bold mb-0 fs-4 fs-md-3">12,450</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-xl-3">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <i class="bi bi-shop fs-3 text-success" aria-hidden="true"></i>
+                                        <p class="text-secondary mb-1 mt-3">Total Sellers</p>
+                                        <h3 class="fw-bold mb-0 fs-4 fs-md-3">245</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-xl-3">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <i class="bi bi-cart3 fs-3 text-warning" aria-hidden="true"></i>
+                                        <p class="text-secondary mb-1 mt-3">Total Orders</p>
+                                        <h3 class="fw-bold mb-0 fs-4 fs-md-3">8,920</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6 col-xl-3">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body">
+                                        <i class="bi bi-currency-rupee fs-3 text-danger" aria-hidden="true"></i>
+                                        <p class="text-secondary mb-1 mt-3">Total Revenue</p>
+                                        <h3 class="fw-bold mb-0 fs-4 fs-md-3">₹4,50,000</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Additional dashboard sections -->
+                        <div class="card border-0 shadow-sm mt-4">
+                            <div class="card-body">
+                                <h5 class="fw-bold">Platform Overview</h5>
+                                <p class="text-secondary mb-0">
+                                    Your marketplace statistics and recent activities
+                                    will appear here.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </main>
+
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            (function () {
+                const sidebar = document.getElementById('sidebar');
+                const toggle = document.getElementById('sidebarToggle');
+                const backdrop = document.getElementById('sidebarBackdrop');
+                if (!sidebar || !toggle) return;
+
+                const isMobile = () => window.innerWidth < 992;
+
+                // Mobile uses "sidebar-open", desktop uses "sidebar-collapsed"
+                function isOpen() {
+                    return isMobile()
+                        ? sidebar.classList.contains('sidebar-open')
+                        : !sidebar.classList.contains('sidebar-collapsed');
+                }
+
+                function setOpen(open) {
+                    if (isMobile()) {
+                        sidebar.classList.toggle('sidebar-open', open);
+                        backdrop.classList.toggle('show', open);
+                        document.body.classList.toggle('sidebar-lock', open);
+                    } else {
+                        sidebar.classList.toggle('sidebar-collapsed', !open);
+                        try { localStorage.setItem('sidebarCollapsed', open ? '0' : '1'); } catch (e) { }
+                    }
+                    toggle.setAttribute('aria-expanded', String(open));
+                }
+
+                // Initial state: closed on mobile, remembered choice on desktop
+                if (!isMobile()) {
+                    let collapsed = false;
+                    try { collapsed = localStorage.getItem('sidebarCollapsed') === '1'; } catch (e) { }
+                    sidebar.classList.toggle('sidebar-collapsed', collapsed);
+                }
+                toggle.setAttribute('aria-expanded', String(isOpen()));
+
+                toggle.addEventListener('click', () => setOpen(!isOpen()));
+                backdrop.addEventListener('click', () => setOpen(false));
+
+                // Close after tapping a menu link on mobile
+                sidebar.addEventListener('click', (e) => {
+                    if (isMobile() && e.target.closest('a')) setOpen(false);
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && isMobile()) setOpen(false);
+                });
+
+                // Clean up state when rotating the phone or resizing the window
+                window.addEventListener('resize', () => {
+                    sidebar.classList.remove('sidebar-open');
+                    backdrop.classList.remove('show');
+                    document.body.classList.remove('sidebar-lock');
+                    toggle.setAttribute('aria-expanded', String(isOpen()));
+                });
+            })();
+        </script>
+
+</body>
+
+</html>

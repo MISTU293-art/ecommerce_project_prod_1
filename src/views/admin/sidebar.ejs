@@ -1,0 +1,122 @@
+<%
+    // Values passed from dashboard.ejs (all optional)
+    const admin  = locals.User || { name: 'Super Admin' };
+    const active = locals.activePage || '';
+
+    // Single source of truth for the menu
+    const menu = [
+        {
+            title: 'Overview',
+            items: [
+                { key: 'dashboard', href: '/admin/dashboard', icon: 'bi-speedometer2',  label: 'Dashboard' },
+                { key: 'analytics', href: '/superadmin/analytics', icon: 'bi-graph-up-arrow', label: 'Platform Analytics' }
+            ]
+        },
+        {
+            title: 'User Management',
+            items: [
+                { key: 'admins',    href: '/admin/management/admins',    icon: 'bi-shield-check', label: 'Administrators' },
+                { key: 'sellers',   href: '/superadmin/sellers',   icon: 'bi-shop',         label: 'Sellers' },
+                { key: 'customers', href: '/superadmin/customers', icon: 'bi-people',       label: 'Customers' },
+                { key: 'staff',     href: '/superadmin/staff',     icon: 'bi-person-badge', label: 'Staff & Employees' },
+                { key: 'roles',     href: '/superadmin/roles',     icon: 'bi-person-lock',  label: 'Roles & Permissions' }
+            ]
+        },
+        {
+            title: 'Marketplace',
+            items: [
+                { key: 'products',   href: '/superadmin/products',   icon: 'bi-box-seam',              label: 'All Products' },
+                { key: 'categories', href: '/superadmin/categories', icon: 'bi-grid',                  label: 'Categories' },
+                { key: 'brands',     href: '/product/add',     icon: 'bi-box-seam',                  label: 'Add Products' },
+                { key: 'orders',     href: '/superadmin/orders',     icon: 'bi-cart3',                 label: 'All Orders' },
+                { key: 'returns',    href: '/superadmin/returns',    icon: 'bi-arrow-counterclockwise', label: 'Returns & Refunds' },
+                { key: 'reviews',    href: '/superadmin/reviews',    icon: 'bi-star',                  label: 'Reviews & Moderation' }
+            ]
+        },
+        {
+            title: 'Finance & Payments',
+            items: [
+                { key: 'payments',     href: '/superadmin/payments',     icon: 'bi-wallet2',         label: 'Payments' },
+                { key: 'commissions',  href: '/superadmin/commissions',  icon: 'bi-percent',         label: 'Seller Commissions' },
+                { key: 'payouts',      href: '/superadmin/payouts',      icon: 'bi-bank',            label: 'Seller Payouts' },
+                { key: 'transactions', href: '/superadmin/transactions', icon: 'bi-arrow-left-right', label: 'Transactions' },
+                { key: 'refunds',      href: '/superadmin/refunds',      icon: 'bi-cash-stack',      label: 'Refund Management' }
+            ]
+        },
+        {
+            title: 'Marketing',
+            items: [
+                { key: 'coupons',       href: '/superadmin/coupons',       icon: 'bi-ticket-perforated', label: 'Coupons & Offers' },
+                { key: 'banners',       href: '/superadmin/banners',       icon: 'bi-images',            label: 'Homepage Banners' },
+                { key: 'notifications', href: '/superadmin/notifications', icon: 'bi-bell',              label: 'Notifications' }
+            ]
+        },
+        {
+            title: 'System Management',
+            items: [
+                { key: 'settings', href: '/superadmin/settings', icon: 'bi-gear',                   label: 'General Settings' },
+                { key: 'security', href: '/superadmin/security', icon: 'bi-shield-lock',            label: 'Security & Access' },
+                { key: 'logs',     href: '/superadmin/logs',     icon: 'bi-journal-text',           label: 'Activity Logs' },
+                { key: 'reports',  href: '/superadmin/reports',  icon: 'bi-file-earmark-bar-graph', label: 'System Reports' },
+                { key: 'backup',   href: '/superadmin/backup',   icon: 'bi-database',               label: 'Database Backup' }
+            ]
+        },
+        {
+            title: 'Account',
+            items: [
+                { key: 'profile', href: '/superadmin/profile', icon: 'bi-person-circle',   label: 'My Profile' },
+                { key: 'help',    href: '/superadmin/help',    icon: 'bi-question-circle', label: 'Support Center' }
+            ]
+        }
+    ];
+%>
+
+<!-- SUPER ADMIN SIDEBAR -->
+<aside id="sidebar"
+       class="d-flex flex-column flex-shrink-0 bg-white border-end position-sticky top-0 vh-100 align-self-start"
+       style="width:270px;">
+
+    <!-- Brand -->
+    <div class="p-3 border-bottom">
+        <a href="/superadmin/dashboard"
+           class="d-flex align-items-center gap-2 text-decoration-none text-dark">
+            <i class="bi bi-shield-lock-fill fs-3 text-primary" aria-hidden="true"></i>
+            <span class="fs-5 fw-bold">MyZone</span>
+        </a>
+        <small class="text-secondary">Super Admin Console</small>
+    </div>
+
+
+
+    <!-- Navigation -->
+    <nav class="flex-grow-1 overflow-auto p-3" aria-label="Super admin navigation">
+
+        <% menu.forEach(function (section, i) { %>
+
+            <small class="d-block text-uppercase text-secondary fw-bold"><%= section.title %></small>
+
+            <ul class="nav nav-pills flex-column gap-1 mt-2 <%= i < menu.length - 1 ? 'mb-4' : '' %>">
+                <% section.items.forEach(function (item) { %>
+                    <% const isActive = item.key === active; %>
+                    <li class="nav-item">
+                        <a href="<%= item.href %>"
+                           class="nav-link <%= isActive ? 'active' : 'text-dark' %>"
+                           <%- isActive ? 'aria-current="page"' : '' %>>
+                            <i class="bi <%= item.icon %> me-2" aria-hidden="true"></i><%= item.label %>
+                        </a>
+                    </li>
+                <% }) %>
+            </ul>
+
+        <% }) %>
+
+    </nav>
+
+    <!-- Logout -->
+    <div class="p-3 border-top">
+        <a href="/admin/logout" class="nav-link d-flex align-items-center text-danger px-0">
+            <i class="bi bi-box-arrow-left me-2" aria-hidden="true"></i>Sign Out
+        </a>
+    </div>
+
+</aside>

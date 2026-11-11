@@ -74,5 +74,9 @@ app.get('/', (req, res) => {
 });
 /** Admin Auth Router */
 import adminAuthRoutes from './routes/admin_auth.routes.js';
-app.use('/admin',adminAuthRoutes)
+import adminManagemntRoute from './routes/admin_management.routes.js';
+import prodctRoute from './routes/product.routes.js';
+app.use('/admin',adminAuthRoutes);
+app.use("/admin/management",adminManagemntRoute);
+app.use('/product',prodctRoute);
 export default app;
